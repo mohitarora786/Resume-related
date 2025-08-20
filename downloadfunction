@@ -1,0 +1,442 @@
+ public function downloadFromRequest(Request $req)
+    {
+        Log::info('Resume Download Request Input', $req->all());
+
+        $data = $req->validate([
+            'first_name'     => 'nullable|string|max:120',
+            'last_name'      => 'nullable|string|max:120',
+            'contact_number' => 'nullable|string|max:40',
+            'email'          => 'nullable|email:rfc,dns|max:190',
+            'dob'            => 'nullable|date',
+            'country'        => 'nullable|string|max:120',
+            'state'          => 'nullable|string|max:120',
+            'city'           => 'nullable|string|max:120',
+            'github'         => 'nullable|string|max:190',
+            'website'        => 'nullable|string|max:190',
+            'linkedin'       => 'nullable|string|max:190',
+            'prof_title'     => 'nullable|string|max:190',
+            'prof_summary'   => 'nullable|string|max:3000',
+
+            // ==== Education (unchanged)
+            'educations'                 => 'nullable|array',
+            'educations.*.degree_name'   => 'nullable|string|max:190',
+            'educations.*.institution'   => 'nullable|string|max:190',
+            'educations.*.focus'         => 'nullable|string|max:190',
+            'educations.*.start_date'    => 'nullable|date',
+            'educations.*.end_date'      => 'nullable|date',
+            'educations.*.mode'          => 'nullable|string|max:120',
+            'educations.*.cgpa'          => 'nullable|string|max:30',
+            'educations.*.website'       => 'nullable|string|max:190',
+            'educations.*.city'          => 'nullable|string|max:120',
+            'educations.*.state'         => 'nullable|string|max:120',
+            'educations.*.country'       => 'nullable|string|max:120',
+            'educations.*.description'   => 'nullable|string|max:2000',
+
+            // ==== Experience
+            'experiences'                  => 'nullable|array',
+            'experiences.*.job_title'      => 'nullable|string|max:190',
+            'experiences.*.company_name'   => 'nullable|string|max:190',
+            'experiences.*.company_type'   => 'nullable|string|max:120',
+            'experiences.*.job_type'       => 'nullable|string|max:120',
+            'experiences.*.company_url'    => 'nullable|string|max:190',
+            'experiences.*.start_date'     => 'nullable|date',
+            'experiences.*.end_date'       => 'nullable|date',
+            'experiences.*.meta_line'      => 'nullable|string|max:300',
+            'experiences.*.city'           => 'nullable|string|max:120',
+            'experiences.*.state'          => 'nullable|string|max:120',
+            'experiences.*.country'        => 'nullable|string|max:120',
+            'experiences.*.description'    => 'nullable|string|max:3000',
+
+            // ==== Projects
+            'projects'                   => 'nullable|array',
+            'projects.*.name'            => 'nullable|string|max:190',
+            'projects.*.meta_line'       => 'nullable|string|max:300',
+            'projects.*.tech_stack'      => 'nullable|string|max:400',
+            'projects.*.start_date'      => 'nullable|date',
+            'projects.*.end_date'        => 'nullable|date',
+            'projects.*.project_type'    => 'nullable|string|max:120',
+            'projects.*.live_link'       => 'nullable|string|max:190',
+            'projects.*.code_link'       => 'nullable|string|max:190',
+            'projects.*.description'     => 'nullable|string|max:3000',
+
+            // ==== Certifications
+            'certifications'                        => 'nullable|array',
+            'certifications.*.name'                 => 'nullable|string|max:190',
+            'certifications.*.issuer'               => 'nullable|string|max:190',
+            'certifications.*.skills_covered'       => 'nullable|array',
+            'certifications.*.skills_covered.*'     => 'nullable|string|max:60',
+            'certifications.*.meta_line'            => 'nullable|string|max:300',
+            'certifications.*.start_date'           => 'nullable|date',
+            'certifications.*.end_date'             => 'nullable|date',
+            'certifications.*.verify_url'           => 'nullable|string|max:190',
+            'certifications.*.cert_url'             => 'nullable|string|max:190',
+            'certifications.*.city'                 => 'nullable|string|max:120',
+            'certifications.*.state'                => 'nullable|string|max:120',
+            'certifications.*.country'              => 'nullable|string|max:120',
+            'certifications.*.description'          => 'nullable|string|max:3000',
+
+            // ==== NEW: Volunteers
+            'volunteers'                 => 'nullable|array',
+            'volunteers.*.role'          => 'nullable|string|max:190',
+            'volunteers.*.org_name'      => 'nullable|string|max:190',
+            'volunteers.*.start_date'    => 'nullable|date',
+            'volunteers.*.end_date'      => 'nullable|date',
+            'volunteers.*.volunteer_type' => 'nullable|string|max:120',
+            'volunteers.*.org_url'       => 'nullable|string|max:190',
+            'volunteers.*.meta_line'     => 'nullable|string|max:300',
+            'volunteers.*.description'   => 'nullable|string|max:3000',
+            'volunteers.*.city'          => 'nullable|string|max:120',
+            'volunteers.*.state'         => 'nullable|string|max:120',
+            'volunteers.*.country'       => 'nullable|string|max:120',
+
+            // ==== NEW: Awards
+            'awards'                       => 'nullable|array',
+            'awards.*.title'               => 'nullable|string|max:190',
+            'awards.*.organization'        => 'nullable|string|max:190',
+            'awards.*.meta_line'           => 'nullable|string|max:300',
+            'awards.*.award_date'          => 'nullable|date',
+            'awards.*.award_link'          => 'nullable|string|max:190',
+            'awards.*.associated_work'     => 'nullable|string|max:190',
+            'awards.*.verify_link'         => 'nullable|string|max:190',
+            'awards.*.description'         => 'nullable|string|max:3000',
+
+            // ==== NEW: Publications
+            'publications'                   => 'nullable|array',
+            'publications.*.title'           => 'nullable|string|max:190',
+            'publications.*.publication_type' => 'nullable|string|max:120',
+            'publications.*.authors'         => 'nullable|string|max:400',
+            'publications.*.published_in'    => 'nullable|string|max:190',
+            'publications.*.published_date'  => 'nullable|date',
+            'publications.*.tags'            => 'nullable|array',
+            'publications.*.tags.*'          => 'nullable|string|max:60',
+            'publications.*.meta_line'       => 'nullable|string|max:300',
+            'publications.*.description'     => 'nullable|string|max:3000',
+
+            // ==== Skills (sectioned) + flat fallback
+            'skills_sections'              => 'nullable|array',
+            'skills_sections.*.title'      => 'nullable|string|max:120',
+            'skills_sections.*.skills'     => 'nullable|array',
+            'skills_sections.*.skills.*'   => 'nullable|string|max:60',
+
+            'skills'                       => 'nullable|array',
+            'skills.*'                     => 'nullable|string|max:60',
+
+            'languages'             => 'nullable|array',
+            'languages.*.name'      => 'nullable|string|max:120',
+            'languages.*.proficiency' => 'nullable|string|max:60',
+            'languages.*.type'      => 'nullable|string|max:30',
+            'languages.*.cert'      => 'nullable|string|max:190',
+
+            // Hobbies
+            'hobbies'               => 'nullable|array',
+            'hobbies.*.title'       => 'nullable|string|max:120',
+            'hobbies.*.skills'      => 'nullable|array',
+            'hobbies.*.skills.*'    => 'nullable|string|max:60',
+        ]);
+
+        $normalizeUrl = function (?string $url): string {
+            $url = trim((string) $url);
+            if ($url === '') return '';
+            if (!preg_match('~^https?://~i', $url)) $url = 'https://' . $url;
+            return $url;
+        };
+
+        $first       = trim((string)($data['first_name'] ?? ''));
+        $last        = trim((string)($data['last_name'] ?? ''));
+        $contact     = trim((string)($data['contact_number'] ?? ''));
+        $email       = trim((string)($data['email'] ?? ''));
+        $dob         = trim((string)($data['dob'] ?? ''));
+        $country     = trim((string)($data['country'] ?? ''));
+        $state       = trim((string)($data['state'] ?? ''));
+        $city        = trim((string)($data['city'] ?? ''));
+        $github      = $normalizeUrl($data['github']  ?? '');
+        $website     = $normalizeUrl($data['website'] ?? '');
+        $linkedin    = $normalizeUrl($data['linkedin'] ?? '');
+        $profTitle   = trim((string)($data['prof_title'] ?? ''));
+        $profSummary = trim((string)($data['prof_summary'] ?? ''));
+
+        // -------- educations --------
+        $educations = [];
+        foreach (($data['educations'] ?? []) as $e) {
+            $row = [
+                'degree_name' => trim((string)($e['degree_name'] ?? '')),
+                'institution' => trim((string)($e['institution'] ?? '')),
+                'focus'       => trim((string)($e['focus'] ?? '')),
+                'start_date'  => trim((string)($e['start_date'] ?? '')),
+                'end_date'    => trim((string)($e['end_date'] ?? '')),
+                'mode'        => trim((string)($e['mode'] ?? '')),
+                'cgpa'        => trim((string)($e['cgpa'] ?? '')),
+                'website'     => $normalizeUrl($e['website'] ?? ''),
+                'city'        => trim((string)($e['city'] ?? '')),
+                'state'       => trim((string)($e['state'] ?? '')),
+                'country'     => trim((string)($e['country'] ?? '')),
+                'description' => trim((string)($e['description'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $educations[] = $row;
+        }
+
+        // -------- experiences --------
+        $experiences = [];
+        foreach (($data['experiences'] ?? []) as $x) {
+            $row = [
+                'job_title'    => trim((string)($x['job_title'] ?? '')),
+                'company_name' => trim((string)($x['company_name'] ?? '')),
+                'company_type' => trim((string)($x['company_type'] ?? '')),
+                'job_type'     => trim((string)($x['job_type'] ?? '')),
+                'company_url'  => $normalizeUrl($x['company_url'] ?? ''),
+                'start_date'   => trim((string)($x['start_date'] ?? '')),
+                'end_date'     => trim((string)($x['end_date'] ?? '')),
+                'meta_line'    => trim((string)($x['meta_line'] ?? '')),
+                'city'         => trim((string)($x['city'] ?? '')),
+                'state'        => trim((string)($x['state'] ?? '')),
+                'country'      => trim((string)($x['country'] ?? '')),
+                'description'  => trim((string)($x['description'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $experiences[] = $row;
+        }
+
+        // -------- projects --------
+        $projects = [];
+        foreach (($data['projects'] ?? []) as $p) {
+            $row = [
+                'name'         => trim((string)($p['name'] ?? '')),
+                'meta_line'    => trim((string)($p['meta_line'] ?? '')),
+                'tech_stack'   => trim((string)($p['tech_stack'] ?? '')),
+                'start_date'   => trim((string)($p['start_date'] ?? '')),
+                'end_date'     => trim((string)($p['end_date'] ?? '')),
+                'project_type' => trim((string)($p['project_type'] ?? '')),
+                'live_link'    => $normalizeUrl($p['live_link'] ?? ''),
+                'code_link'    => $normalizeUrl($p['code_link'] ?? ''),
+                'description'  => trim((string)($p['description'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $projects[] = $row;
+        }
+
+        // -------- certifications --------
+        $certifications = [];
+        foreach (($data['certifications'] ?? []) as $c) {
+            $tags = [];
+            $seen = [];
+            $rawTags = is_array($c['skills_covered'] ?? null) ? $c['skills_covered'] : [];
+            foreach ($rawTags as $t) {
+                $tv = trim((string)$t);
+                if ($tv === '') continue;
+                $key = mb_strtolower($tv);
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $tags[] = $tv;
+            }
+
+            $row = [
+                'name'           => trim((string)($c['name'] ?? '')),
+                'issuer'         => trim((string)($c['issuer'] ?? '')),
+                'skills_covered' => $tags,
+                'meta_line'      => trim((string)($c['meta_line'] ?? '')),
+                'start_date'     => trim((string)($c['start_date'] ?? '')),
+                'end_date'       => trim((string)($c['end_date'] ?? '')),
+                'verify_url'     => $normalizeUrl($c['verify_url'] ?? ''),
+                'cert_url'       => $normalizeUrl($c['cert_url'] ?? ''),
+                'city'           => trim((string)($c['city'] ?? '')),
+                'state'          => trim((string)($c['state'] ?? '')),
+                'country'        => trim((string)($c['country'] ?? '')),
+                'description'    => trim((string)($c['description'] ?? '')),
+            ];
+
+            if (
+                $row['name'] === '' && $row['issuer'] === '' &&
+                implode('', array_diff_key($row, array_flip(['skills_covered']))) === '' &&
+                empty($row['skills_covered'])
+            ) {
+                continue;
+            }
+
+            $certifications[] = $row;
+        }
+
+        // -------- NEW: volunteers --------
+        $volunteers = [];
+        foreach (($data['volunteers'] ?? []) as $v) {
+            $row = [
+                'role'           => trim((string)($v['role'] ?? '')),
+                'org_name'       => trim((string)($v['org_name'] ?? '')),
+                'start_date'     => trim((string)($v['start_date'] ?? '')),
+                'end_date'       => trim((string)($v['end_date'] ?? '')),
+                'volunteer_type' => trim((string)($v['volunteer_type'] ?? '')),
+                'org_url'        => $normalizeUrl($v['org_url'] ?? ''),
+                'meta_line'      => trim((string)($v['meta_line'] ?? '')),
+                'description'    => trim((string)($v['description'] ?? '')),
+                'city'           => trim((string)($v['city'] ?? '')),
+                'state'          => trim((string)($v['state'] ?? '')),
+                'country'        => trim((string)($v['country'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $volunteers[] = $row;
+        }
+
+        // -------- NEW: awards --------
+        $awards = [];
+        foreach (($data['awards'] ?? []) as $a) {
+            $row = [
+                'title'          => trim((string)($a['title'] ?? '')),
+                'organization'   => trim((string)($a['organization'] ?? '')),
+                'meta_line'      => trim((string)($a['meta_line'] ?? '')),
+                'award_date'     => trim((string)($a['award_date'] ?? '')),
+                'award_link'     => $normalizeUrl($a['award_link'] ?? ''),
+                'associated_work' => trim((string)($a['associated_work'] ?? '')),
+                'verify_link'    => $normalizeUrl($a['verify_link'] ?? ''),
+                'description'    => trim((string)($a['description'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $awards[] = $row;
+        }
+
+        // -------- NEW: publications --------
+        $publications = [];
+        foreach (($data['publications'] ?? []) as $p) {
+            // tags: trim + dedupe
+            $tags = [];
+            $seen = [];
+            $rawTags = is_array($p['tags'] ?? null) ? $p['tags'] : [];
+            foreach ($rawTags as $t) {
+                $tv = trim((string)$t);
+                if ($tv === '') continue;
+                $key = mb_strtolower($tv);
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $tags[] = $tv;
+            }
+
+            $row = [
+                'title'            => trim((string)($p['title'] ?? '')),
+                'publication_type' => trim((string)($p['publication_type'] ?? '')),
+                'authors'          => trim((string)($p['authors'] ?? '')),
+                'published_in'     => trim((string)($p['published_in'] ?? '')),
+                'published_date'   => trim((string)($p['published_date'] ?? '')),
+                'tags'             => $tags,
+                'meta_line'        => trim((string)($p['meta_line'] ?? '')),
+                'description'      => trim((string)($p['description'] ?? '')),
+            ];
+
+            if (
+                $row['title'] === '' &&
+                implode('', array_diff_key($row, array_flip(['tags']))) === '' &&
+                empty($row['tags'])
+            ) {
+                continue;
+            }
+
+            $publications[] = $row;
+        }
+
+        // -------- skills_sections --------
+        $skillsSections = [];
+        foreach (($data['skills_sections'] ?? []) as $sec) {
+            $title = trim((string)($sec['title'] ?? ''));
+            $skillsRaw = is_array($sec['skills'] ?? null) ? $sec['skills'] : [];
+            $skills = [];
+            $seen = [];
+            foreach ($skillsRaw as $s) {
+                $sv = trim((string)$s);
+                if ($sv === '') continue;
+                $key = mb_strtolower($sv);
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $skills[] = $sv;
+            }
+            if ($title === '' && empty($skills)) continue;
+            $skillsSections[] = ['title' => $title, 'skills' => $skills];
+        }
+        $languages = [];
+        foreach (($data['languages'] ?? []) as $L) {
+            $row = [
+                'name'        => trim((string)($L['name'] ?? '')),
+                'proficiency' => trim((string)($L['proficiency'] ?? '')),
+                'type'        => trim((string)($L['type'] ?? '')),
+                'cert'        => trim((string)($L['cert'] ?? '')),
+            ];
+            if (implode('', $row) === '') continue;
+            $languages[] = $row;
+        }
+
+        $hobbies = [];
+        foreach (($data['hobbies'] ?? []) as $H) {
+            $title = trim((string)($H['title'] ?? ''));
+            $skillsRaw = is_array($H['skills'] ?? null) ? $H['skills'] : [];
+            $skills = [];
+            $seen = [];
+            foreach ($skillsRaw as $s) {
+                $sv = trim((string)$s);
+                if ($sv === '') continue;
+                $key = mb_strtolower($sv);
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $skills[] = $sv;
+            }
+            if ($title === '' && empty($skills)) continue;
+            $hobbies[] = ['title' => $title, 'skills' => $skills];
+        }
+
+        // optional: legacy flat skills
+        $flatSkills = [];
+        foreach (($data['skills'] ?? []) as $s) {
+            $sv = trim((string)$s);
+            if ($sv !== '') $flatSkills[] = $sv;
+        }
+
+        Log::info('Resume Sanitized', [
+            'name'                 => trim($first . ' ' . $last),
+            'educations_count'     => count($educations),
+            'experiences_count'    => count($experiences),
+            'projects_count'       => count($projects),
+            'certifications_count' => count($certifications),
+            'volunteers_count'     => count($volunteers),
+            'awards_count'         => count($awards),
+            'publications_count'   => count($publications),
+            'skills_sections'      => $skillsSections,
+            'skills_flat'          => $flatSkills,
+        ]);
+
+        $viewData = [
+            'first_name'     => $first,
+            'last_name'      => $last,
+            'contact_number' => $contact,
+            'email'          => $email,
+            'dob'            => $dob,
+            'country'        => $country,
+            'state'          => $state,
+            'city'           => $city,
+            'github'         => $github,
+            'website'        => $website,
+            'linkedin'       => $linkedin,
+            'prof_title'     => $profTitle,
+            'prof_summary'   => $profSummary,
+
+            'educations'      => $educations,
+            'experiences'     => $experiences,
+            'projects'        => $projects,
+            'certifications'  => $certifications,
+
+
+            'volunteers'      => $volunteers,
+            'awards'          => $awards,
+            'publications'    => $publications,
+
+            'skills_sections' => $skillsSections,
+            'skills'          => $flatSkills,
+            'languages' => $languages,
+            'hobbies'   => $hobbies,
+        ];
+
+        $pdf = Pdf::loadView('Templates.Resumes.template1-preview', $viewData)
+            ->setPaper('a4')
+            ->setOptions(['isRemoteEnabled' => true]);
+
+        $baseName = trim($first . ' ' . $last);
+        $slug     = $baseName ? Str::slug($baseName) : 'resume';
+        $fileName = $slug . '-resume.pdf';
+
+        return $pdf->download($fileName);
+    }

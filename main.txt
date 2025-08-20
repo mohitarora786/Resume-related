@@ -1,0 +1,26 @@
+step - 1
+Route::get('/resume-builder/templates/{id}', [ResumeBuilderController::class, 'showTemplate'])
+        ->name('resume.templates.show');
+
+step 2
+public function showTemplate($id)
+    {
+        $imagePath = public_path("Templates_Resumes/{$id}.png");
+        if (!file_exists($imagePath)) {
+            abort(404, 'Template not found.');
+        }
+
+        return view('resume-builder.template', [
+            'id' => $id,
+            'image' => asset("Templates_Resumes/{$id}.png")
+        ]);
+    }
+step 3
+include file resume.blade.php
+
+step 4
+downalod function
+Route::get('/resume/{id}/download', [ResumeController::class, 'download'])->name('resume.download');
+
+
+step 5
